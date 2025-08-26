@@ -46,3 +46,11 @@ button {
     font-size: 1.1rem;
     text-align: left;
 }
+
+#control-button.listening {
+    background-color: #f44336; /* Red color to indicate recording */
+}
+
+#control-button.speaking {
+    background-color: #ff9800; /* Orange color for when AI is speaking */
+}
