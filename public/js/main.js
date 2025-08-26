@@ -257,7 +257,7 @@ async function sendAudioToServer(audio) {
                     const data = JSON.parse(line.substring(5));
                     if (data.text) {
                         fullResponse += data.text;
-                        aiResponseDiv.textContent = fullResponse;
+                      //  aiResponseDiv.textContent = fullResponse;
                         speakText(data.text);
                     }
                 }
