@@ -1,5 +1,5 @@
 // public/js/main.js
-const controlButton = document.getElementById('control-button');
+const controlButton = document.getElementById('voice-orb');
 const statusDiv = document.getElementById('status');
 const aiResponseDiv = document.getElementById('ai-response');
 
@@ -38,27 +38,27 @@ function handleControlButtonClick() {
 
 // --- State and UI Management ---
 function updateButtonState(state) {
+    const voiceOrb = document.getElementById('voice-orb');
+    const statusText = document.getElementById('status');
+
+    // Remove all state classes first
+    voiceOrb.classList.remove('listening', 'processing', 'speaking');
+
     switch (state) {
         case 'idle':
-            controlButton.textContent = 'Start Conversation';
-            controlButton.classList.remove('listening', 'speaking');
-            statusDiv.textContent = 'Click the button to start.';
+            statusText.textContent = 'Click the orb to start the conversation.';
             break;
         case 'listening':
-            controlButton.textContent = 'End Conversation';
-            controlButton.classList.add('listening');
-            controlButton.classList.remove('speaking');
-            statusDiv.textContent = 'Listening...';
+            voiceOrb.classList.add('listening');
+            statusText.textContent = 'Listening...';
             break;
         case 'processing':
-            controlButton.textContent = 'End Conversation';
-            statusDiv.textContent = 'Thinking...';
+            voiceOrb.classList.add('processing');
+            statusText.textContent = 'Thinking...';
             break;
         case 'speaking':
-            controlButton.textContent = 'End Conversation';
-            controlButton.classList.remove('listening');
-            controlButton.classList.add('speaking');
-            statusDiv.textContent = 'Speaking...';
+            voiceOrb.classList.add('speaking');
+            statusText.textContent = 'Speaking...';
             break;
     }
 }
