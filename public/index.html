@@ -4,16 +4,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Velora - Gemini Live</title>
+    <title>Gemini Voice Assistant</title>
     <link rel="stylesheet" href="css/style.css">
+    <!-- Google Fonts for a nicer look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-    <h1>Velora AI Assistant</h1>
-    <div id="status">Click the button and start speaking</div>
-    <button id="control-button">Start Listening</button> <!-- Single button -->
-    <div id="ai-response"></div>
-</div>
-<script src="js/main.js"></script>
+
+    <div class="voice-container">
+        <h1 class="title">Valora Voice Assistant</h1>
+        
+        <div class="orb-container">
+            <!-- This is the main interactive element -->
+            <div id="voice-orb" class="voice-orb">
+                <!-- Microphone Icon (using SVG for high quality) -->
+                <svg id="mic-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zM17.3 11c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <p id="status" class="status-text">Click the orb to start the conversation.</p>
+    </div>
+
+    <script src="js/main.js"></script>
 </body>
 </html>
