@@ -21,103 +21,111 @@ let microphoneStream;
 let silenceTimer;
 let animationFrameId;
 
-// --- FIX 1: TUNE THE THRESHOLDS ---
-const SILENCE_DURATION_MS = 2000; // Increased to 2 seconds for more forgiving pauses.
+const SILENCE_DURATION_MS = 1200;
 const SILENCE_THRESHOLD = 0.01;
-// This is the most important value to tune. We've made it much higher to prevent self-interruption.
-const INTERRUPTION_THRESHOLD = 0.25; 
+const INTERRUPTION_THRESHOLD = 0.25;
 
-// --- FIX 2: ADD A DELAY BEFORE ACTIVATING BARGE-IN ---
-const BARGE_IN_ACTIVATION_DELAY_MS = 300; // Wait 300ms before listening for interruptions.
-
-
+// --- Main Control Logic ---
 controlButton.addEventListener('click', handleControlButtonClick);
 
 function handleControlButtonClick() {
-    if (isAiSpeaking) {
-        interruptSpeech(); 
-    } else if (isRecording) {
-        stopRecording(); 
+    if (isRecording || isAiSpeaking) {
+        endConversation();
     } else {
-        startRecording();
+        startConversation();
     }
 }
 
+// --- State and UI Management ---
 function updateButtonState(state) {
     switch (state) {
         case 'idle':
-            controlButton.textContent = 'Start Listening';
+            controlButton.textContent = 'Start Conversation';
             controlButton.classList.remove('listening', 'speaking');
-            controlButton.disabled = false;
-            statusDiv.textContent = 'Click the button and start speaking';
+            statusDiv.textContent = 'Click the button to start.';
             break;
         case 'listening':
-            controlButton.textContent = 'Listening...';
+            controlButton.textContent = 'End Conversation';
             controlButton.classList.add('listening');
             controlButton.classList.remove('speaking');
             statusDiv.textContent = 'Listening...';
             break;
         case 'processing':
-            controlButton.textContent = 'Thinking...';
-            controlButton.disabled = true;
-            statusDiv.textContent = 'Processing your request...';
+            controlButton.textContent = 'End Conversation';
+            statusDiv.textContent = 'Thinking...';
             break;
         case 'speaking':
-            controlButton.textContent = 'Stop Speaking';
+            controlButton.textContent = 'End Conversation';
             controlButton.classList.remove('listening');
             controlButton.classList.add('speaking');
-            controlButton.disabled = false;
+            statusDiv.textContent = 'Speaking...';
             break;
     }
 }
 
-function stopVAD() {
-    if (animationFrameId) cancelAnimationFrame(animationFrameId);
-    if (microphoneStream) microphoneStream.getTracks().forEach(track => track.stop());
-    if (audioContext && audioContext.state !== 'closed') audioContext.close();
-    animationFrameId = null;
-    microphoneStream = null;
-}
-
-async function startRecording() {
-    if (isRecording) return;
-    isRecording = true;
-    
-    interruptSpeech(); 
-    audioChunks = [];
-    aiResponseDiv.textContent = '';
-    updateButtonState('listening');
-
+// --- Core Conversation Flow ---
+async function startConversation() {
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        microphoneStream = stream;
-        mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-        mediaRecorder.ondataavailable = event => {
-            if (event.data.size > 0) audioChunks.push(event.data);
-        };
-        mediaRecorder.onstop = processAudio;
-        mediaRecorder.start();
-        setupVAD(stream);
+        microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        setupVAD(microphoneStream); // Start the persistent VAD loop for the session
+        startRecording();
     } catch (error) {
-        console.error('Error starting recording:', error);
-        updateButtonState('idle');
-        isRecording = false;
+        console.error('Could not get microphone stream:', error);
+        statusDiv.textContent = 'Error: Could not access microphone.';
     }
 }
 
-function stopRecording() {
-    if (!isRecording) return;
+function endConversation() {
     isRecording = false;
-    
-    stopVAD();
+    isAiSpeaking = false;
 
     if (mediaRecorder && mediaRecorder.state === 'recording') {
         mediaRecorder.stop();
     }
-    
+    if (synth.speaking) {
+        utteranceQueue = [];
+        synth.cancel();
+    }
+
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    if (microphoneStream) {
+        microphoneStream.getTracks().forEach(track => track.stop());
+        microphoneStream = null;
+    }
+    if (audioContext && audioContext.state !== 'closed') {
+        audioContext.close();
+    }
+
+    updateButtonState('idle');
+}
+
+function startRecording() {
+    if (!microphoneStream || isRecording) return;
+    isRecording = true;
+    isAiSpeaking = false;
+
+    audioChunks = [];
+    updateButtonState('listening');
+
+    mediaRecorder = new MediaRecorder(microphoneStream, { mimeType: 'audio/webm' });
+    mediaRecorder.ondataavailable = event => {
+        if (event.data.size > 0) audioChunks.push(event.data);
+    };
+    mediaRecorder.onstop = processAudio;
+    mediaRecorder.start();
+}
+
+function stopRecordingAndProcess() {
+    if (!isRecording) return;
+    isRecording = false;
+
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+    }
     updateButtonState('processing');
 }
 
+// --- Voice Activity Detection (The Brains of the Operation) ---
 function setupVAD(stream) {
     if (audioContext && audioContext.state !== 'closed') audioContext.close();
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -130,30 +138,25 @@ function setupVAD(stream) {
     const dataArray = new Uint8Array(bufferLength);
 
     const monitorAudio = () => {
-        if (!isRecording && !isAiSpeaking) {
-            stopVAD();
-            return;
-        }
-
+        // This loop now runs continuously as long as the conversation is active
         analyser.getByteTimeDomainData(dataArray);
-        const sum = dataArray.reduce((acc, val) => acc + Math.abs(val - 128), 0);
-        const average = sum / bufferLength / 128;
+        const average = dataArray.reduce((sum, val) => sum + Math.abs(val - 128), 0) / bufferLength / 128;
 
         if (isRecording) {
+            // Mode 1: Listening for user to stop talking (silence)
             if (average < SILENCE_THRESHOLD) {
                 if (!silenceTimer) {
-                    silenceTimer = setTimeout(stopRecording, SILENCE_DURATION_MS);
+                    silenceTimer = setTimeout(stopRecordingAndProcess, SILENCE_DURATION_MS);
                 }
             } else {
                 clearTimeout(silenceTimer);
                 silenceTimer = null;
             }
         } else if (isAiSpeaking) {
+            // Mode 2: Listening for user to interrupt (sound)
             if (average > INTERRUPTION_THRESHOLD) {
-                console.log("Barge-in detected! User started speaking.");
-                interruptSpeech();
-                setTimeout(startRecording, 50); 
-                return;
+                console.log("Barge-in detected!");
+                interruptSpeech(true); // Interrupt and immediately start recording again
             }
         }
         animationFrameId = requestAnimationFrame(monitorAudio);
@@ -163,7 +166,7 @@ function setupVAD(stream) {
 
 async function processAudio() {
     if (audioChunks.length === 0) {
-        updateButtonState('idle');
+        startRecording();
         return;
     }
     const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
@@ -172,15 +175,16 @@ async function processAudio() {
     reader.readAsDataURL(audioBlob);
 }
 
-function interruptSpeech() {
+// --- Speech and Interruption ---
+function interruptSpeech(shouldStartRecordingAgain = false) {
     if (synth.speaking) {
         utteranceQueue = [];
         synth.cancel();
     }
     isAiSpeaking = false;
-    stopVAD();
-    if (!isRecording) {
-        updateButtonState('idle');
+    
+    if (shouldStartRecordingAgain) {
+        startRecording();
     }
 }
 
@@ -189,37 +193,23 @@ async function speakText(text) {
     utteranceQueue.push(utterance);
     
     utterance.onstart = () => {
-        isAiSpeaking = true;
+        isRecording = false; // We are no longer recording user input
+        isAiSpeaking = true; // We are now in speaking mode
         updateButtonState('speaking');
-        // --- FIX 2 (IMPLEMENTATION): Wait before activating VAD for barge-in ---
-        setTimeout(async () => {
-            if(isAiSpeaking) { // Only start if AI is still supposed to be speaking
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    microphoneStream = stream;
-                    setupVAD(stream);
-                } catch (err) {
-                    console.error("Could not start VAD for interruption:", err);
-                }
-            }
-        }, BARGE_IN_ACTIVATION_DELAY_MS);
     };
     
     utterance.onend = () => {
         if (utteranceQueue.length === 0) {
-            isAiSpeaking = false;
-            stopVAD();
-            if (!isRecording) updateButtonState('idle');
+            // After finishing speaking, seamlessly go back to listening
+            startRecording();
         }
         speakNextInQueue();
     };
 
     utterance.onerror = (event) => {
         console.error('SpeechSynthesisUtterance.onerror', event);
-        isAiSpeaking = false;
-        stopVAD();
-        updateButtonState('idle');
-        speakNextInQueue();
+        // If speech fails, go back to listening
+        startRecording();
     };
 
     if (!synth.speaking) {
@@ -233,6 +223,7 @@ function speakNextInQueue() {
     }
 }
 
+// --- Server Communication ---
 async function sendAudioToServer(audio) {
     try {
         const response = await fetch('/api/dialog', {
@@ -251,27 +242,25 @@ async function sendAudioToServer(audio) {
             if (done) break;
 
             const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\n\n');
-            for (const line of lines) {
+            for (const line of chunk.split('\n\n')) {
                 if (line.startsWith('data:')) {
                     const data = JSON.parse(line.substring(5));
                     if (data.text) {
                         fullResponse += data.text;
-                      //  aiResponseDiv.textContent = fullResponse;
                         speakText(data.text);
                     }
                 }
             }
         }
         if (fullResponse) {
-            history.push({ role: 'user', parts: [{ text: 'User audio input' }] });
+            history.push({ role: 'user', parts: [{ text: "user audio" }] });
             history.push({ role: 'model', parts: [{ text: fullResponse }] });
         } else {
-             updateButtonState('idle');
+             startRecording();
         }
     } catch (error) {
         console.error("Error sending audio to server:", error);
         statusDiv.textContent = 'Sorry, an error occurred.';
-        updateButtonState('idle');
+        endConversation();
     }
 }
