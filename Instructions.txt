@@ -1,0 +1,100 @@
+##################################################################
+#
+#       PROJECT: Valora Voice Assistant
+#       AUTHOR: Indresh
+#       DATE: September 4, 2025
+#
+##################################################################
+
+
+This document contains all the necessary instructions to set up, run,
+and understand the deployment of the Valora Voice Assistant project.
+
+This project is a full-stack AI application with a separate backend
+(for handling API logic) and a frontend (for the user interface).
+
+
+==================================================================
+==  1. LIVE DEPLOYMENT URLS                                     ==
+==================================================================
+
+The application is deployed and publicly accessible at the following URLs:
+
+*   **FRONTEND (Live Application):**
+    *   URL: https://valora-voice-assistant.netlify.app/
+    *   SERVICE: Netlify
+    *   PURPOSE: This is the main URL for users to access and interact with the voice assistant.
+
+*   **BACKEND (API Server):**
+    *   URL: https://valora-api-3vzd.onrender.com
+    *   SERVICE: Render
+    *   PURPOSE: This server handles all communication with the Google Gemini API. The frontend sends audio data to this URL.
+
+
+==================================================================
+==  2. LOCAL DEVELOPMENT SETUP                                  ==
+==================================================================
+
+To run this project on your local machine, follow these steps.
+
+---
+### **Prerequisites:**
+
+1.  **Node.js:** Ensure you have Node.js (version 18.x or later) installed.
+2.  **Git:** The project should be cloned from its Git repository.
+3.  **Gemini API Key:** You must have a valid Google Gemini API key.
+
+---
+### **Step-by-Step Instructions:**
+
+**Step A: Set Up the Backend API Key**
+
+The backend needs your secret API key to function.
+
+1.  Navigate to the `backend` folder:
+    `cd backend`
+2.  Create a file named `.env`:
+    `touch .env`
+3.  Open the `.env` file and add your Gemini API key in the following format:
+    `API_KEY=YOUR_GEMINI_API_KEY_GOES_HERE`
+4.  Save and close the file.
+
+**Step B: Install All Dependencies**
+
+The project has two sets of dependencies (one for the backend and one for the frontend). The root `package.json` is configured to install everything at once.
+
+1.  Navigate to the **root** project directory (`VOICEINTERFACE`).
+2.  Run the following command:
+    `npm install`
+    (This will run `npm install` in both the `backend` and `frontend` directories automatically).
+
+**Step C: Run the Application**
+
+A single command from the root directory will start both the backend and frontend servers concurrently.
+
+1.  Make sure you are in the **root** project directory (`VOICEINTERFACE`).
+2.  Run the development script:
+    `npm run dev`
+
+---
+### **What Happens When You Run `npm run dev`:**
+
+*   **Backend Server:** Starts on `http://localhost:3000`.
+*   **Frontend Server:** Starts on `http://localhost:5173` (or the next available port).
+*   Your web browser will automatically open to the frontend URL. The React app is pre-configured to send its API requests to your local backend server.
+
+
+==================================================================
+==  3. PROJECT OVERVIEW                                         ==
+==================================================================
+
+*   **Technology Stack:**
+    *   **Frontend:** React (built with Vite), CSS3
+    *   **Backend:** Node.js, Express.js
+    *   **Core API:** Google Gemini Live API (gemini-1.5-flash)
+    *   **Deployment:** Netlify (Frontend), Render (Backend)
+
+*   **Folder Structure:**
+    *   `/backend`: Contains the Node.js/Express server.
+    *   `/frontend`: Contains the React UI application.
+    *   The root `package.json` uses `concurrently` to manage and run both parts of the project.
