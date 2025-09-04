@@ -1,25 +1,10 @@
 {
-  "name": "voiceinterface",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Indreshkumawat/VoiceInterface.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Indreshkumawat/VoiceInterface/issues"
-  },
-  "homepage": "https://github.com/Indreshkumawat/VoiceInterface#readme",
-  "dependencies": {
-    "@google/generative-ai": "^0.24.1",
-    "dotenv": "^17.2.1",
-    "express": "^5.1.0"
+  "backend": "npm start --prefix backend",
+  "frontend": "npm run dev --prefix frontend",
+  "dev": "concurrently \"npm run backend\" \"npm run frontend\""
+},
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }

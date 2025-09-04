@@ -1,0 +1,124 @@
+/* --- THEME & COLOR DEFINITIONS (unchanged) --- */
+body.theme-dark {
+    --primary-color: #9B59B6;
+    --background-color: #1A1A1A;
+    --surface-color: #2C2C2C;
+    --text-color: #EAEAEA;
+    --text-muted-color: #888888;
+    --orb-glow-color: rgba(155, 89, 182, 0.6);
+    --orb-border-color: #444;
+}
+
+body.theme-light {
+    --primary-color: #8E44AD;
+    --background-color: #F4F4F9;
+    --surface-color: #FFFFFF;
+    --text-color: #2C2C2C;
+    --text-muted-color: #666666;
+    --orb-glow-color: rgba(142, 68, 173, 0.5);
+    --orb-border-color: #DDDDDD;
+}
+
+/* --- Foundational Styles --- */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    /* Allow scrolling for the whole page if content overflows */
+    overflow-y: auto;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#root {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    /* Use min-height to ensure it fills the viewport but can grow */
+    min-height: 100vh; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+/* --- Main Layout --- */
+.voice-container {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.title {
+    font-weight: 300;
+    font-size: 2.5rem;
+    letter-spacing: 2px;
+}
+
+.status-text {
+    font-weight: 300;
+    font-size: 1.2rem;
+    min-height: 1.5rem;
+    transition: color 0.3s ease;
+    color: var(--text-muted-color);
+}
+
+/* --- The Voice Orb (unchanged) --- */
+.orb-container { position: relative; width: 200px; height: 200px; display: flex; justify-content: center; align-items: center; }
+.voice-orb { width: 120px; height: 120px; background: var(--surface-color); border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; position: relative; border: 3px solid var(--orb-border-color); box-shadow: 0 5px 20px rgba(0,0,0,0.2); transition: all 0.3s ease; }
+.voice-orb svg { width: 40px; height: 40px; color: var(--text-color); transition: color 0.3s ease; }
+.voice-orb:hover:not(.listening):not(.processing):not(.speaking) { border-color: var(--primary-color); transform: scale(1.05); }
+.voice-orb.listening { border-color: #3498DB; animation: breathe 2s infinite ease-in-out; }
+@keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.voice-orb.processing { border-color: transparent; border-top-color: var(--primary-color); animation: spin 1s infinite linear; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.voice-orb.speaking { border-color: var(--primary-color); box-shadow: 0 0 20px var(--orb-glow-color), 0 0 40px var(--orb-glow-color); }
+
+/* --- Theme Toggle Button (unchanged) --- */
+.theme-toggle { position: absolute; top: 2rem; right: 2rem; background: var(--surface-color); border: 1px solid var(--orb-border-color); border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.3s ease; }
+.theme-toggle:hover { border-color: var(--primary-color); }
+.theme-toggle svg { width: 20px; height: 20px; color: var(--text-color); }
+
+/* --- Output Mode Controls (unchanged) --- */
+.output-controls { display: flex; gap: 1rem; }
+.control-button { padding: 0.5rem 1rem; border: 1px solid var(--orb-border-color); background-color: var(--surface-color); color: var(--text-muted-color); border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease; }
+.control-button:hover:not(:disabled) { border-color: var(--primary-color); color: var(--primary-color); }
+.control-button.active { background-color: var(--primary-color); border-color: var(--primary-color); color: white; }
+.control-button:disabled { cursor: not-allowed; opacity: 0.4; }
+
+/* --- Written Response Container (CORRECTED) --- */
+.response-container {
+    width: 100%;
+    max-width: 700px;
+    background-color: var(--surface-color);
+    border: 1px solid var(--orb-border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-sizing: border-box; /* Ensures padding is inside the width/height */
+    text-align: left;
+    font-weight: 300;
+    line-height: 1.6;
+    color: var(--text-color);
+
+    /* This combination implements the "grow-then-scroll" logic */
+    /* 1. Set a max-height. This is the limit it can grow to. 
+       A value like 25rem is about 10-12 lines of text. */
+    max-height: 25rem;
+    
+    /* 2. Set overflow-y to 'auto'. The scrollbar will only
+       appear when the content inside exceeds the max-height. */
+    overflow-y: auto;
+}
+
+/* --- Footer (unchanged) --- */
+.footer {
+    padding-top: 1.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted-color);
+}
