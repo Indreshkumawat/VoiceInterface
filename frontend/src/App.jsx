@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './index.css';
 
 // --- Icon Components (unchanged) ---
-const MicIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zM17.3 11c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"></path></svg> );
-const SunIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zm-9-7c.55 0 1-.45 1-1V3c0-.55-.45-1-1-1s-1 .45-1 1v2c0 .55.45 1 1 1zm0 14c.55 0 1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1v2c0 .55.45 1 1 1zm-6.36-2.64c.39.39 1.02.39 1.41 0l1.41-1.41c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0l-1.41 1.41c-.39.39-.39 1.02 0 1.41zm10.61 0c.39.39 1.02.39 1.41 0l1.41-1.41c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0l-1.41 1.41c-.39.39-.39 1.02 0 1.41zM4.93 4.93c.39.39 1.02.39 1.41 0l1.41-1.41c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L4.93 3.51c-.39.39-.39 1.02 0 1.42z"/></svg> );
-const MoonIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11.1 12.08c-2.33-4.51-.5-8.48.5-10.08-1.74.18-3.24.83-4.5 1.95-1.95 1.77-2.6 4.34-1.99 6.77.62 2.45 2.54 4.36 4.99 4.99 2.45.62 5 .04 6.77-1.95-1.26 1.25-2.76 1.9-4.5 1.95-.9-.18-1.76-.55-2.42-1.08z"/></svg> );
+const MicIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zM17.3 11c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"></path></svg>);
+const SunIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zm-9-7c.55 0 1-.45 1-1V3c0-.55-.45-1-1-1s-1 .45-1 1v2c0 .55.45 1 1 1zm0 14c.55 0 1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1v2c0 .55.45 1 1 1zm-6.36-2.64c.39.39 1.02.39 1.41 0l1.41-1.41c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0l-1.41 1.41c-.39.39-.39 1.02 0 1.41zm10.61 0c.39.39 1.02.39 1.41 0l1.41-1.41c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0l-1.41 1.41c-.39.39-.39 1.02 0 1.41zM4.93 4.93c.39.39 1.02.39 1.41 0l1.41-1.41c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L4.93 3.51c-.39.39-.39 1.02 0 1.42z" /></svg>);
+const MoonIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11.1 12.08c-2.33-4.51-.5-8.48.5-10.08-1.74.18-3.24.83-4.5 1.95-1.95 1.77-2.6 4.34-1.99 6.77.62 2.45 2.54 4.36 4.99 4.99 2.45.62 5 .04 6.77-1.95-1.26 1.25-2.76 1.9-4.5 1.95-.9-.18-1.76-.55-2.42-1.08z" /></svg>);
 
 const SILENCE_DURATION_MS = 1200;
 const SILENCE_THRESHOLD = 0.01;
@@ -25,7 +25,7 @@ function App() {
     const animationFrameIdRef = useRef(null);
     const utteranceQueueRef = useRef([]);
     const appStateRef = useRef(appState);
-    
+
     // Create a ref to hold the startRecording function to break the circular dependency
     const startRecordingRef = useRef(null);
 
@@ -73,7 +73,17 @@ function App() {
 
     const sendAudioToServer = useCallback(async (audio) => {
         try {
-            const response = await fetch('/api/dialog', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ audio, history }) });
+
+            const apiUrl = `${import.meta.env.VITE_API_URL || ''}/api/dialog`;
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ audio, history })
+            });
+
+            // const response = await fetch('/api/dialog', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ audio, history }) });
+           
             if (!response.ok) throw new Error(`Server error: ${response.statusText}`);
 
             const reader = response.body.getReader();
@@ -100,7 +110,7 @@ function App() {
                     }
                 }
             }
-            
+
             // Only restart recording here if not in verbal mode (verbal mode restarts in speakFromQueue)
             if (!isVerbalMode) {
                 if (fullResponse && microphoneStreamRef.current && startRecordingRef.current) {
@@ -110,7 +120,7 @@ function App() {
                     startRecordingRef.current(microphoneStreamRef.current);
                 }
             }
-            
+
             if (fullResponse) {
                 setHistory(prev => [...prev, { role: 'user', parts: [{ text: "user audio" }] }, { role: 'model', parts: [{ text: fullResponse }] }]);
             }
@@ -133,13 +143,13 @@ function App() {
         reader.onloadend = () => sendAudioToServer(reader.result.split(',')[1]);
         reader.readAsDataURL(audioBlob);
     }, [sendAudioToServer]);
-    
+
     const startRecording = useCallback((stream) => {
         setAppState('listening');
         audioChunksRef.current = [];
         const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
         mediaRecorderRef.current = mediaRecorder;
-        
+
         mediaRecorder.ondataavailable = (event) => {
             if (event.data.size > 0) audioChunksRef.current.push(event.data);
         };
@@ -207,7 +217,7 @@ function App() {
             alert("Please select at least one output mode.");
             return;
         }
-        setResponseText(''); 
+        setResponseText('');
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             microphoneStreamRef.current = stream;
@@ -217,7 +227,7 @@ function App() {
             console.error('Could not get microphone stream:', error);
         }
     }, [isWrittenMode, isVerbalMode, startRecording, setupVAD]);
-    
+
     const handleOrbClick = useCallback(() => {
         if (appStateRef.current !== 'idle') {
             endConversation();
